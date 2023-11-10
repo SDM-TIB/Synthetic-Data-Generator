@@ -1,0 +1,1132 @@
+@prefix d2rq: <http://www.wiwiss.fu-berlin.de/suhl/bizer/D2RQ/0.1#> .
+@prefix rr: <http://www.w3.org/ns/r2rml#> .
+@prefix rml: <http://semweb.mmlab.be/ns/rml#> .
+@prefix ql: <http://semweb.mmlab.be/ns/ql#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix paladin: <http://research.tib.eu/paladin/vocab/> .
+
+<#DB_source> a d2rq:Database;
+  d2rq:jdbcDSN "SYNTH";
+  d2rq:jdbcDriver "com.mysql.cj.jdbc.Driver";
+  d2rq:username "";
+  d2rq:password "".
+
+<BCPatient_oral_drug>
+  a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT ehr, to_uri(od.drug) AS drug, to_uri(drug_type) AS drug_type FROM oral_drug od JOIN oral_drug_type odt USING (drug)";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/BC_HUPHM_{ehr}";
+    rr:class paladin:BCPatient
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasOralDrug;
+    rr:objectMap [
+      rml:reference "drug";
+      rr:termType rr:IRI;
+    ];
+  ] ;
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasOralDrugType;
+    rr:objectMap [
+      rml:reference "drug_type";
+      rr:termType rr:IRI;
+    ];
+  ] .
+
+<BCPatient_family_history>
+  a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT ehr, cancer_cui, to_uri(description) AS description FROM family_history fh JOIN cui_description cd ON (fh.cancer_cui = cd.cui)";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/BC_HUPHM_{ehr}";
+    rr:class paladin:BCPatient
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasFamilyCancerType;
+    rr:objectMap [
+      rr:parentTriplesMap <FamilyCancerType>
+    ]
+  ].
+
+<FamilyCancerType>
+  a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT ehr, cancer_cui, to_uri(description) AS description FROM family_history fh JOIN cui_description cd ON (fh.cancer_cui = cd.cui)";
+  ];
+  rr:subjectMap [
+    rml:reference "description";
+    rr:termType rr:IRI;
+  ];
+  rr:predicateObjectMap [
+    rr:predicate rdf:type;
+    rr:objectMap [
+      rr:constant <http://research.tib.eu/paladin/vocab/CancerType>;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasOriginalValue;
+    rr:objectMap [
+      rml:reference "cancer_cui";
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasCUIAnnotation;
+    rr:objectMap [
+      rr:template "http://research.tib.eu/paladin/entity/{cancer_cui}"
+    ]
+  ].
+
+<BCPatient_radiotherapy_treatment_line>
+  a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT * FROM radiotherapy";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/BC_HUPHM_{ehr}";
+    rr:class paladin:BCPatient
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasTreatmentEpisode;
+    rr:objectMap [
+      rr:parentTriplesMap <Treatment_Episode_Radiotherapy>
+    ]
+  ].
+
+<Treatment_Episode_Radiotherapy>
+  a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT * FROM radiotherapy";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/{ehr}_Radiotherapy_{date_start}";
+    rr:class paladin:TreatmentEpisode
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasTreatmentType;
+    rr:objectMap [
+      rr:parentTriplesMap <RadiotherapyTreatmentLine>
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:treatementLineStartDate;
+    rr:objectMap [
+      rml:reference "date_start";
+      rr:datatype xsd:date
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:treatementLineEndingDate;
+    rr:objectMap [
+      rml:reference "date_end";
+      rr:datatype xsd:date
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasEpisode;
+    rr:objectMap [
+      rr:parentTriplesMap <TreatmentLineNumber_Radiotherapy>
+    ]
+  ].
+
+<RadiotherapyTreatmentLine>
+  a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT * FROM radiotherapy";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/BC_HUPHM_{ehr}_Radiotherapy_{n_radiotherapy}";
+    rr:class paladin:Radiotherapy;
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasRadiotherapyRound;
+    rr:objectMap [
+      rr:parentTriplesMap <TreatmentLineNumber_Radiotherapy>
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:treatementLineStartDate;
+    rr:objectMap [
+      rml:reference "date_start";
+      rr:datatype xsd:date
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:treatementLineEndingDate;
+    rr:objectMap [
+      rml:reference "date_end";
+      rr:datatype xsd:date
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:treatmentLineDosage;
+    rr:objectMap [
+      rml:reference "dose_gy";
+    ]
+  ].
+
+<TreatmentLineNumber_Radiotherapy>
+  a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT * FROM radiotherapy";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/TL_{n_radiotherapy}";
+    rr:class paladin:RadiotherapyRound;
+  ].
+
+<BCPatient_surgery>
+  a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT ehr, surgery, to_uri(surgery) AS surgery_uri, n_surgery, date_year, date_month, date_day FROM surgery";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/BC_HUPHM_{ehr}";
+    rr:class paladin:BCPatient
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasTreatmentEpisode;
+    rr:objectMap [
+      rr:parentTriplesMap <treatement_episode_surgery>
+    ]
+  ].
+
+<treatement_episode_surgery>
+  a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT ehr, surgery, to_uri(surgery) AS surgery_uri, n_surgery, date_year, date_month, date_day FROM surgery";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/{ehr}_Surgery_{n_surgery}";
+    rr:class paladin:TreatmentEpisode
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasTreatmentType;
+    rr:objectMap [
+      rr:parentTriplesMap <Treatment_Episode_surgery_surgery>
+    ]
+  ].
+
+<Treatment_Episode_surgery_surgery>
+  a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT ehr, surgery, to_uri(surgery) AS surgery_uri, n_surgery, date_year, date_month, date_day FROM surgery";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/{ehr}_{surgery}_OncologicalSurgery_{n_surgery}";
+    rr:class paladin:OncologicalSurgery
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:surgeryYear;
+    rr:objectMap [
+      rml:reference "date_year";
+      rr:datatype xsd:int;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:surgeryMonth;
+    rr:objectMap [
+      rml:reference "date_month";
+      rr:datatype xsd:int;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:surgeryDay;
+    rr:objectMap [
+      rml:reference "date_day";
+      rr:datatype xsd:int;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasType;
+    rr:objectMap [
+      rr:parentTriplesMap <SurgeryType>
+    ]
+  ].
+
+<SurgeryType>
+  a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT ehr, surgery, to_uri(surgery) AS surgery_uri, n_surgery, date_year, date_month, date_day FROM surgery";
+  ];
+  rr:subjectMap [
+    rml:reference "surgery_uri";
+    rr:termType rr:IRI;
+  ];
+  rr:predicateObjectMap [
+    rr:predicate rdf:type;
+    rr:objectMap [
+      rr:template "http://research.tib.eu/paladin/vocab/SurgeryType";
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasOriginalValue;
+    rr:objectMap [
+      rml:reference "surgery";
+    ]
+  ].
+
+<BCPatient_comorbidity>
+  a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT ehr, comorbidity AS comorbidity_orig, negated as negated_orig, to_uri(CASE WHEN comorbidity='smoker' THEN '' WHEN comorbidity='ex-smoker' THEN '' WHEN comorbidity='hta' THEN 'HTA' WHEN comorbidity='cardiac insufficiency' THEN 'Heart_failure' WHEN comorbidity='dislipemia' THEN 'Hypercholesterolemia' WHEN comorbidity='thyroid disease' THEN 'Thyroid_diseases' WHEN comorbidity='musculoskeletal disease' THEN 'Musculoskeletal_diseases' WHEN comorbidity='renal disease' THEN 'renal_disease_uncharacterized' WHEN comorbidity='gastrointestinal disease' THEN 'Gastrointestinal' WHEN comorbidity='psychiatric disorder' THEN 'Mental_disorder' WHEN comorbidity='insomnia' THEN 'Sleeplessness' WHEN comorbidity='liver disease' THEN 'Liver_diseases' WHEN comorbidity='autoimmune disease' THEN 'Autoimmune_diseases' WHEN comorbidity='lung disease' THEN 'Lung_diseases' WHEN comorbidity='transplant' THEN 'Transplantation' ELSE comorbidity END) AS comorbidity, to_uri(CASE WHEN comorbidity='smoker' THEN 'CurrentSmoker' WHEN comorbidity='ex-smoker' THEN 'PreviousSmoker' ELSE '' END) AS smokingHabit, to_uri(CASE WHEN negated=0 THEN 'NoComorbidity' ELSE 'WithComorbidity' END) AS negated FROM comorbidity";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/BC_HUPHM_{ehr}";
+    rr:class paladin:BCPatient
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasComorbidityStatus;
+    rr:objectMap [
+      rr:parentTriplesMap <positive_negative_comorbidity>
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasComorbidity;
+    rr:objectMap [
+      rr:parentTriplesMap <disorder_comorbidity>
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasSmokingHabit;
+    rr:objectMap [
+      rr:parentTriplesMap <smoking_habit_comorbidity>
+    ]
+  ].
+
+<positive_negative_comorbidity>
+  a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT ehr, comorbidity AS comorbidity_orig, negated as negated_orig, to_uri(CASE WHEN comorbidity='smoker' THEN '' WHEN comorbidity='ex-smoker' THEN '' WHEN comorbidity='hta' THEN 'HTA' WHEN comorbidity='cardiac insufficiency' THEN 'Heart_failure' WHEN comorbidity='dislipemia' THEN 'Hypercholesterolemia' WHEN comorbidity='thyroid disease' THEN 'Thyroid_diseases' WHEN comorbidity='musculoskeletal disease' THEN 'Musculoskeletal_diseases' WHEN comorbidity='renal disease' THEN 'renal_disease_uncharacterized' WHEN comorbidity='gastrointestinal disease' THEN 'Gastrointestinal' WHEN comorbidity='psychiatric disorder' THEN 'Mental_disorder' WHEN comorbidity='insomnia' THEN 'Sleeplessness' WHEN comorbidity='liver disease' THEN 'Liver_diseases' WHEN comorbidity='autoimmune disease' THEN 'Autoimmune_diseases' WHEN comorbidity='lung disease' THEN 'Lung_diseases' WHEN comorbidity='transplant' THEN 'Transplantation' ELSE comorbidity END) AS comorbidity, to_uri(CASE WHEN comorbidity='smoker' THEN 'CurrentSmoker' WHEN comorbidity='ex-smoker' THEN 'PreviousSmoker' ELSE '' END) AS smokingHabit, to_uri(CASE WHEN negated=0 THEN 'NoComorbidity' ELSE 'WithComorbidity' END) AS negated FROM comorbidity";
+  ];
+  rr:subjectMap [
+    rml:reference "negated";
+    rr:termType rr:IRI;
+  ];
+  rr:termType rr:IRI;
+  rr:predicateObjectMap [
+    rr:predicate rdf:type;
+    rr:objectMap [
+      rr:constant <http://research.tib.eu/paladin/vocab/ComorbidityStatus>;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasOriginalValue;
+    rr:objectMap [
+      rml:reference "negated_orig";
+    ]
+  ].
+
+<disorder_comorbidity>
+  a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT ehr, comorbidity AS comorbidity_orig, negated as negated_orig, to_uri(CASE WHEN comorbidity='smoker' THEN '' WHEN comorbidity='ex-smoker' THEN '' WHEN comorbidity='hta' THEN 'HTA' WHEN comorbidity='cardiac insufficiency' THEN 'Heart_failure' WHEN comorbidity='dislipemia' THEN 'Hypercholesterolemia' WHEN comorbidity='thyroid disease' THEN 'Thyroid_diseases' WHEN comorbidity='musculoskeletal disease' THEN 'Musculoskeletal_diseases' WHEN comorbidity='renal disease' THEN 'renal_disease_uncharacterized' WHEN comorbidity='gastrointestinal disease' THEN 'Gastrointestinal' WHEN comorbidity='psychiatric disorder' THEN 'Mental_disorder' WHEN comorbidity='insomnia' THEN 'Sleeplessness' WHEN comorbidity='liver disease' THEN 'Liver_diseases' WHEN comorbidity='autoimmune disease' THEN 'Autoimmune_diseases' WHEN comorbidity='lung disease' THEN 'Lung_diseases' WHEN comorbidity='transplant' THEN 'Transplantation' ELSE comorbidity END) AS comorbidity, to_uri(CASE WHEN comorbidity='smoker' THEN 'CurrentSmoker' WHEN comorbidity='ex-smoker' THEN 'PreviousSmoker' ELSE '' END) AS smokingHabit, to_uri(CASE WHEN negated=0 THEN 'NoComorbidity' ELSE 'WithComorbidity' END) AS negated FROM comorbidity";
+  ];
+  rr:subjectMap [
+    rml:reference "comorbidity";
+    rr:termType rr:IRI;
+  ];
+  rr:predicateObjectMap [
+    rr:predicate rdf:type;
+    rr:objectMap [
+      rr:constant <http://research.tib.eu/paladin/vocab/Disorder>;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasOriginalValue;
+    rr:objectMap [
+      rml:reference "comorbidity_orig";
+    ]
+  ].
+
+<smoking_habit_comorbidity>
+  a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT ehr, comorbidity AS comorbidity_orig, negated as negated_orig, to_uri(CASE WHEN comorbidity='smoker' THEN '' WHEN comorbidity='ex-smoker' THEN '' WHEN comorbidity='hta' THEN 'HTA' WHEN comorbidity='cardiac insufficiency' THEN 'Heart_failure' WHEN comorbidity='dislipemia' THEN 'Hypercholesterolemia' WHEN comorbidity='thyroid disease' THEN 'Thyroid_diseases' WHEN comorbidity='musculoskeletal disease' THEN 'Musculoskeletal_diseases' WHEN comorbidity='renal disease' THEN 'renal_disease_uncharacterized' WHEN comorbidity='gastrointestinal disease' THEN 'Gastrointestinal' WHEN comorbidity='psychiatric disorder' THEN 'Mental_disorder' WHEN comorbidity='insomnia' THEN 'Sleeplessness' WHEN comorbidity='liver disease' THEN 'Liver_diseases' WHEN comorbidity='autoimmune disease' THEN 'Autoimmune_diseases' WHEN comorbidity='lung disease' THEN 'Lung_diseases' WHEN comorbidity='transplant' THEN 'Transplantation' ELSE comorbidity END) AS comorbidity, to_uri(CASE WHEN comorbidity='smoker' THEN 'CurrentSmoker' WHEN comorbidity='ex-smoker' THEN 'PreviousSmoker' ELSE '' END) AS smokingHabit, to_uri(CASE WHEN negated=0 THEN 'NoComorbidity' ELSE 'WithComorbidity' END) AS negated FROM comorbidity";
+  ];
+  rr:subjectMap [
+    rml:reference "smokingHabit";
+    rr:termType rr:IRI;
+  ];
+  rr:predicateObjectMap [
+    rr:predicate rdf:type;
+    rr:objectMap [
+      rr:constant <http://research.tib.eu/paladin/vocab/SmokingHabit>;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasOriginalValue;
+    rr:objectMap [
+      rml:reference "comorbidity_orig";
+    ]
+  ].
+
+<BCPatient_tumor_grade>
+  a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT ehr, grade FROM tumor_grade";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/BC_HUPHM_{ehr}";
+    rr:class paladin:BCPatient
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:tumorGrade;
+    rr:objectMap [
+      rml:reference "grade";
+    ]
+  ].
+
+<BCPatient_tnm_stadification>
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT tnm.*, p.diagnosis_date, (CASE WHEN p.neoadjuvant LIKE '%no%' THEN NULL ELSE p.first_treatment_date END) AS neoadjuvant_derived_date, p.neoadjuvant, to_uri(CASE WHEN t_category = 'IS' THEN 'In_Situ' ELSE CONCAT('t', t_category) END) AS url_diag_tumor_size, to_uri(CONCAT('n', n_category)) AS url_diag_lymph_nodes, to_uri(CONCAT('m', m_category)) AS url_diag_metastatis, to_uri(CASE WHEN t_category_after_neoadj = 'IS' THEN 'In_Situ' WHEN t_category_after_neoadj IS NULL THEN '' ELSE CONCAT('t', t_category_after_neoadj) END) AS url_neoadj_tumor_size, to_uri(CASE WHEN n_category_after_neoadj IS NULL THEN '' ELSE CONCAT('n', n_category_after_neoadj) END) AS url_neoadj_lymph_nodes, to_uri(CASE WHEN m_category_after_neoadj IS NULL THEN '' ELSE CONCAT('m', m_category_after_neoadj) END) AS url_neoadj_metastatis FROM tumor_tnm tnm JOIN patient p USING (ehr)";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/BC_HUPHM_{ehr}";
+    rr:class paladin:BCPatient
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasTNMstageAssessment;
+    rr:objectMap [
+      rr:parentTriplesMap <TNM_assessment_diagnosis>
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasTNMstageAssessment;
+    rr:objectMap [
+      rr:parentTriplesMap <TNM_assessment_NeoadjuvantTherapy>
+    ]
+  ].
+
+<TNM_assessment_diagnosis>
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT tnm.*, p.diagnosis_date, (CASE WHEN p.neoadjuvant LIKE '%no%' THEN NULL ELSE p.first_treatment_date END) AS neoadjuvant_derived_date, p.neoadjuvant, to_uri(CASE WHEN t_category = 'IS' THEN 'In_Situ' ELSE CONCAT('t', t_category) END) AS url_diag_tumor_size, to_uri(CONCAT('n', n_category)) AS url_diag_lymph_nodes, to_uri(CONCAT('m', m_category)) AS url_diag_metastatis, to_uri(CASE WHEN t_category_after_neoadj = 'IS' THEN 'In_Situ' WHEN t_category_after_neoadj IS NULL THEN '' ELSE CONCAT('t', t_category_after_neoadj) END) AS url_neoadj_tumor_size, to_uri(CASE WHEN n_category_after_neoadj IS NULL THEN '' ELSE CONCAT('n', n_category_after_neoadj) END) AS url_neoadj_lymph_nodes, to_uri(CASE WHEN m_category_after_neoadj IS NULL THEN '' ELSE CONCAT('m', m_category_after_neoadj) END) AS url_neoadj_metastatis FROM tumor_tnm tnm JOIN patient p USING (ehr)";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/{ehr}_Diagnosis_StageAssessment";
+    rr:class paladin:TNMstageAssessment
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:isAssessedDuring;
+    rr:objectMap [
+      rr:constant "Diagnosis";
+      rr:termType rr:Literal;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:isAssessedOn;
+    rr:objectMap [
+      rml:reference "diagnosis_date";
+      rr:datatype xsd:date ;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasStage;
+    rr:objectMap [
+      rml:reference "stage_diagnosis";
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasTNMstage;
+    rr:objectMap [
+      rr:parentTriplesMap <TNM_Stage_diagnosis_tnm_stadification>
+    ]
+  ].
+
+<TNM_Stage_diagnosis_tnm_stadification>
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT tnm.*, p.diagnosis_date, (CASE WHEN p.neoadjuvant LIKE '%no%' THEN NULL ELSE p.first_treatment_date END) AS neoadjuvant_derived_date, p.neoadjuvant, to_uri(CASE WHEN t_category = 'IS' THEN 'In_Situ' ELSE CONCAT('t', t_category) END) AS url_diag_tumor_size, to_uri(CONCAT('n', n_category)) AS url_diag_lymph_nodes, to_uri(CONCAT('m', m_category)) AS url_diag_metastatis, to_uri(CASE WHEN t_category_after_neoadj = 'IS' THEN 'In_Situ' WHEN t_category_after_neoadj IS NULL THEN '' ELSE CONCAT('t', t_category_after_neoadj) END) AS url_neoadj_tumor_size, to_uri(CASE WHEN n_category_after_neoadj IS NULL THEN '' ELSE CONCAT('n', n_category_after_neoadj) END) AS url_neoadj_lymph_nodes, to_uri(CASE WHEN m_category_after_neoadj IS NULL THEN '' ELSE CONCAT('m', m_category_after_neoadj) END) AS url_neoadj_metastatis FROM tumor_tnm tnm JOIN patient p USING (ehr)";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/{stage_diagnosis}";
+    rr:class paladin:TNMstage
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:cancerStageTNM_TumorSize;
+    rr:objectMap [
+      rr:parentTriplesMap <Diagnosis_TNM_TumorSize>
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:cancerStageTNM_LymphNodesInvolvement;
+    rr:objectMap [
+      rr:parentTriplesMap <Diagnosis_TNM_LymphNodesInvolvement>
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:cancerStageTNM_MetastatisStage;
+    rr:objectMap [
+      rr:parentTriplesMap <Diagnosis_TNM_MetastatisStage>
+    ]
+  ].
+
+<Diagnosis_TNM_TumorSize>
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT tnm.*, p.diagnosis_date, (CASE WHEN p.neoadjuvant LIKE '%no%' THEN NULL ELSE p.first_treatment_date END) AS neoadjuvant_derived_date, p.neoadjuvant, to_uri(CASE WHEN t_category = 'IS' THEN 'In_Situ' ELSE CONCAT('t', t_category) END) AS url_diag_tumor_size, to_uri(CONCAT('n', n_category)) AS url_diag_lymph_nodes, to_uri(CONCAT('m', m_category)) AS url_diag_metastatis, to_uri(CASE WHEN t_category_after_neoadj = 'IS' THEN 'In_Situ' WHEN t_category_after_neoadj IS NULL THEN '' ELSE CONCAT('t', t_category_after_neoadj) END) AS url_neoadj_tumor_size, to_uri(CASE WHEN n_category_after_neoadj IS NULL THEN '' ELSE CONCAT('n', n_category_after_neoadj) END) AS url_neoadj_lymph_nodes, to_uri(CASE WHEN m_category_after_neoadj IS NULL THEN '' ELSE CONCAT('m', m_category_after_neoadj) END) AS url_neoadj_metastatis FROM tumor_tnm tnm JOIN patient p USING (ehr)";
+  ];
+  rr:subjectMap [
+    rml:reference "url_diag_tumor_size";
+    rr:termType rr:IRI;
+  ];
+  rr:predicateObjectMap [
+    rr:predicate rdf:type;
+    rr:objectMap [
+      rr:constant <http://research.tib.eu/paladin/vocab/TumorSize>;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:tumorSize_staging_method;
+    rr:objectMap <Diagnosis_tnm_t_staging_method_Function_bc_clinical_notes_HUPHM_tnm_stadification> ;
+    rr:termType rr:Literal ;
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:tumorSize_staging_category;
+    rr:objectMap [
+      rml:reference "t_category";
+    ]
+  ].
+
+<Diagnosis_TNM_LymphNodesInvolvement>
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT tnm.*, p.diagnosis_date, (CASE WHEN p.neoadjuvant LIKE '%no%' THEN NULL ELSE p.first_treatment_date END) AS neoadjuvant_derived_date, p.neoadjuvant, to_uri(CASE WHEN t_category = 'IS' THEN 'In_Situ' ELSE CONCAT('t', t_category) END) AS url_diag_tumor_size, to_uri(CONCAT('n', n_category)) AS url_diag_lymph_nodes, to_uri(CONCAT('m', m_category)) AS url_diag_metastatis, to_uri(CASE WHEN t_category_after_neoadj = 'IS' THEN 'In_Situ' WHEN t_category_after_neoadj IS NULL THEN '' ELSE CONCAT('t', t_category_after_neoadj) END) AS url_neoadj_tumor_size, to_uri(CASE WHEN n_category_after_neoadj IS NULL THEN '' ELSE CONCAT('n', n_category_after_neoadj) END) AS url_neoadj_lymph_nodes, to_uri(CASE WHEN m_category_after_neoadj IS NULL THEN '' ELSE CONCAT('m', m_category_after_neoadj) END) AS url_neoadj_metastatis FROM tumor_tnm tnm JOIN patient p USING (ehr)";
+  ];
+  rr:subjectMap [
+    rml:reference "url_diag_lymph_nodes";
+    rr:termType rr:IRI;
+  ];
+  rr:predicateObjectMap [
+    rr:predicate rdf:type;
+    rr:objectMap [
+      rr:constant <http://research.tib.eu/paladin/vocab/LymphNodesInvolvement>;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:lymphNodesInvolvement_staging_method;
+    rr:objectMap <Diagnosis_tnm_n_staging_method_Function_bc_clinical_notes_HUPHM_tnm_stadification> ;
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:lymphNodesInvolvement_staging_category;
+    rr:objectMap [
+      rml:reference "n_category";
+    ]
+  ].
+
+<Diagnosis_TNM_MetastatisStage>
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT tnm.*, p.diagnosis_date, (CASE WHEN p.neoadjuvant LIKE '%no%' THEN NULL ELSE p.first_treatment_date END) AS neoadjuvant_derived_date, p.neoadjuvant, to_uri(CASE WHEN t_category = 'IS' THEN 'In_Situ' ELSE CONCAT('t', t_category) END) AS url_diag_tumor_size, to_uri(CONCAT('n', n_category)) AS url_diag_lymph_nodes, to_uri(CONCAT('m', m_category)) AS url_diag_metastatis, to_uri(CASE WHEN t_category_after_neoadj = 'IS' THEN 'In_Situ' WHEN t_category_after_neoadj IS NULL THEN '' ELSE CONCAT('t', t_category_after_neoadj) END) AS url_neoadj_tumor_size, to_uri(CASE WHEN n_category_after_neoadj IS NULL THEN '' ELSE CONCAT('n', n_category_after_neoadj) END) AS url_neoadj_lymph_nodes, to_uri(CASE WHEN m_category_after_neoadj IS NULL THEN '' ELSE CONCAT('m', m_category_after_neoadj) END) AS url_neoadj_metastatis FROM tumor_tnm tnm JOIN patient p USING (ehr)";
+  ];
+  rr:subjectMap [
+    rml:reference "url_diag_metastatis";
+    rr:termType rr:IRI;
+  ];
+  rr:predicateObjectMap [
+    rr:predicate rdf:type;
+    rr:objectMap [
+      rr:constant <http://research.tib.eu/paladin/vocab/MetastatisStage>;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:metastatisStage_staging_category;
+    rr:objectMap [
+      rml:reference "m_category";
+    ]
+  ].
+
+<TNM_assessment_NeoadjuvantTherapy>
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT tnm.*, p.diagnosis_date, (CASE WHEN p.neoadjuvant LIKE '%no%' THEN NULL ELSE p.first_treatment_date END) AS neoadjuvant_derived_date, p.neoadjuvant, to_uri(CASE WHEN t_category = 'IS' THEN 'In_Situ' ELSE CONCAT('t', t_category) END) AS url_diag_tumor_size, to_uri(CONCAT('n', n_category)) AS url_diag_lymph_nodes, to_uri(CONCAT('m', m_category)) AS url_diag_metastatis, to_uri(CASE WHEN t_category_after_neoadj = 'IS' THEN 'In_Situ' WHEN t_category_after_neoadj IS NULL THEN '' ELSE CONCAT('t', t_category_after_neoadj) END) AS url_neoadj_tumor_size, to_uri(CASE WHEN n_category_after_neoadj IS NULL THEN '' ELSE CONCAT('n', n_category_after_neoadj) END) AS url_neoadj_lymph_nodes, to_uri(CASE WHEN m_category_after_neoadj IS NULL THEN '' ELSE CONCAT('m', m_category_after_neoadj) END) AS url_neoadj_metastatis FROM tumor_tnm tnm JOIN patient p USING (ehr)";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/{ehr}_AfterNeoadjuvantTherapy_StageAssessment";
+    rr:class paladin:TNMstageAssessment
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:isAssessedDuring;
+    rr:objectMap [
+      rr:constant "AfterNeoadjuvantTherapy";
+      rr:termType rr:Literal;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:isAssessedOn;
+    rr:objectMap [
+      rml:reference "neoadjuvant_derived_date";
+      rr:datatype xsd:date ;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasStage;
+    rr:objectMap [
+      rml:reference "stage_after_neo";
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasTNMstage;
+    rr:objectMap [
+      rr:parentTriplesMap <TNM_Stage_NeoadjuvantTherapy>
+    ]
+  ].
+
+<TNM_Stage_NeoadjuvantTherapy>
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT tnm.*, p.diagnosis_date, (CASE WHEN p.neoadjuvant LIKE '%no%' THEN NULL ELSE p.first_treatment_date END) AS neoadjuvant_derived_date, p.neoadjuvant, to_uri(CASE WHEN t_category = 'IS' THEN 'In_Situ' ELSE CONCAT('t', t_category) END) AS url_diag_tumor_size, to_uri(CONCAT('n', n_category)) AS url_diag_lymph_nodes, to_uri(CONCAT('m', m_category)) AS url_diag_metastatis, to_uri(CASE WHEN t_category_after_neoadj = 'IS' THEN 'In_Situ' WHEN t_category_after_neoadj IS NULL THEN '' ELSE CONCAT('t', t_category_after_neoadj) END) AS url_neoadj_tumor_size, to_uri(CASE WHEN n_category_after_neoadj IS NULL THEN '' ELSE CONCAT('n', n_category_after_neoadj) END) AS url_neoadj_lymph_nodes, to_uri(CASE WHEN m_category_after_neoadj IS NULL THEN '' ELSE CONCAT('m', m_category_after_neoadj) END) AS url_neoadj_metastatis FROM tumor_tnm tnm JOIN patient p USING (ehr)";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/{stage_after_neo}";
+    rr:class paladin:TNMstage
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:cancerStageTNM_TumorSize;
+    rr:objectMap [
+       rr:parentTriplesMap <NeoadjuvantTherapy_TNM_TumorSize>
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:cancerStageTNM_LymphNodesInvolvement;
+    rr:objectMap [
+      rr:parentTriplesMap <NeoadjuvantTherapy_TNM_LymphNodesInvolvement>
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:cancerStageTNM_MetastatisStage;
+    rr:objectMap [
+      rr:parentTriplesMap <NeoadjuvantTherapy_TNM_MetastatisStage>
+    ]
+  ].
+
+<NeoadjuvantTherapy_TNM_TumorSize>
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT tnm.*, p.diagnosis_date, (CASE WHEN p.neoadjuvant LIKE '%no%' THEN NULL ELSE p.first_treatment_date END) AS neoadjuvant_derived_date, p.neoadjuvant, to_uri(CASE WHEN t_category = 'IS' THEN 'In_Situ' ELSE CONCAT('t', t_category) END) AS url_diag_tumor_size, to_uri(CONCAT('n', n_category)) AS url_diag_lymph_nodes, to_uri(CONCAT('m', m_category)) AS url_diag_metastatis, to_uri(CASE WHEN t_category_after_neoadj = 'IS' THEN 'In_Situ' WHEN t_category_after_neoadj IS NULL THEN '' ELSE CONCAT('t', t_category_after_neoadj) END) AS url_neoadj_tumor_size, to_uri(CASE WHEN n_category_after_neoadj IS NULL THEN '' ELSE CONCAT('n', n_category_after_neoadj) END) AS url_neoadj_lymph_nodes, to_uri(CASE WHEN m_category_after_neoadj IS NULL THEN '' ELSE CONCAT('m', m_category_after_neoadj) END) AS url_neoadj_metastatis FROM tumor_tnm tnm JOIN patient p USING (ehr)";
+  ];
+  rr:subjectMap [
+    rml:reference "url_neoadj_tumor_size";
+    rr:termType rr:IRI;
+  ];
+  rr:predicateObjectMap [
+    rr:predicate rdf:type;
+    rr:objectMap [
+      rr:constant <http://research.tib.eu/paladin/vocab/TumorSize>;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:tumorSize_staging_method;
+    rr:objectMap <NeoadjuvantTherapy_tnm_t_staging_method_Function_bc_clinical_notes_HUPHM_tnm_stadification> ;
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:tumorSize_staging_category;
+    rr:objectMap [
+      rml:reference "t_category_after_neoadj";
+    ]
+  ].
+
+<NeoadjuvantTherapy_TNM_LymphNodesInvolvement>
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT tnm.*, p.diagnosis_date, (CASE WHEN p.neoadjuvant LIKE '%no%' THEN NULL ELSE p.first_treatment_date END) AS neoadjuvant_derived_date, p.neoadjuvant, to_uri(CASE WHEN t_category = 'IS' THEN 'In_Situ' ELSE CONCAT('t', t_category) END) AS url_diag_tumor_size, to_uri(CONCAT('n', n_category)) AS url_diag_lymph_nodes, to_uri(CONCAT('m', m_category)) AS url_diag_metastatis, to_uri(CASE WHEN t_category_after_neoadj = 'IS' THEN 'In_Situ' WHEN t_category_after_neoadj IS NULL THEN '' ELSE CONCAT('t', t_category_after_neoadj) END) AS url_neoadj_tumor_size, to_uri(CASE WHEN n_category_after_neoadj IS NULL THEN '' ELSE CONCAT('n', n_category_after_neoadj) END) AS url_neoadj_lymph_nodes, to_uri(CASE WHEN m_category_after_neoadj IS NULL THEN '' ELSE CONCAT('m', m_category_after_neoadj) END) AS url_neoadj_metastatis FROM tumor_tnm tnm JOIN patient p USING (ehr)";
+  ];
+  rr:subjectMap [
+    rml:reference "url_neoadj_lymph_nodes";
+    rr:termType rr:IRI;
+  ];
+  rr:predicateObjectMap [
+    rr:predicate rdf:type;
+    rr:objectMap [
+      rr:constant <http://research.tib.eu/paladin/vocab/LymphNodesInvolvement>;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:lymphNodesInvolvement_staging_method;
+    rr:objectMap <NeoadjuvantTherapy_tnm_n_staging_method_Function_bc_clinical_notes_HUPHM_tnm_stadification> ;
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:lymphNodesInvolvement_staging_category;
+    rr:objectMap [
+      rml:reference "n_category_after_neoadj";
+    ]
+  ].
+
+<NeoadjuvantTherapy_TNM_MetastatisStage>
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT tnm.*, p.diagnosis_date, (CASE WHEN p.neoadjuvant LIKE '%no%' THEN NULL ELSE p.first_treatment_date END) AS neoadjuvant_derived_date, p.neoadjuvant, to_uri(CASE WHEN t_category = 'IS' THEN 'In_Situ' ELSE CONCAT('t', t_category) END) AS url_diag_tumor_size, to_uri(CONCAT('n', n_category)) AS url_diag_lymph_nodes, to_uri(CONCAT('m', m_category)) AS url_diag_metastatis, to_uri(CASE WHEN t_category_after_neoadj = 'IS' THEN 'In_Situ' WHEN t_category_after_neoadj IS NULL THEN '' ELSE CONCAT('t', t_category_after_neoadj) END) AS url_neoadj_tumor_size, to_uri(CASE WHEN n_category_after_neoadj IS NULL THEN '' ELSE CONCAT('n', n_category_after_neoadj) END) AS url_neoadj_lymph_nodes, to_uri(CASE WHEN m_category_after_neoadj IS NULL THEN '' ELSE CONCAT('m', m_category_after_neoadj) END) AS url_neoadj_metastatis FROM tumor_tnm tnm JOIN patient p USING (ehr)";
+  ];
+  rr:subjectMap [
+    rml:reference "url_neoadj_metastatis";
+    rr:termType rr:IRI;
+  ];
+  rr:predicateObjectMap [
+    rr:predicate rdf:type;
+    rr:objectMap [
+      rr:constant <http://research.tib.eu/paladin/vocab/MetastatisStage>;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:metastatisStage_staging_category;
+    rr:objectMap [
+      rml:reference "m_category_after_neoadj";
+    ]
+  ].
+
+<BCPatient>
+  a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT *, to_uri(neoadjuvant) AS neoadjuvant_uri, to_bool_uri(er_positive) AS er_positive_uri, to_bool_uri(pr_positive) AS pr_positive_uri, to_bool_uri(her2_overall_positive) AS her2_overall_positive_uri FROM patient";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/BC_HUPHM_{ehr}";
+    rr:class paladin:BCPatient
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:id_ehr;
+    rr:objectMap [
+      rml:reference "ehr"
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:birthDate;
+    rr:objectMap [
+      rml:reference "birth_date";
+      rr:datatype xsd:date;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:diagnosisDate;
+    rr:objectMap [
+      rml:reference "diagnosis_date";
+      rr:datatype xsd:date;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:age;
+    rr:objectMap [
+      rml:reference "age_at_diagnosis";
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasOncologicalTreatmentLine;
+    rr:objectMap [
+      rr:parentTriplesMap <OncologicalTreatmentLine_bc_clinical_notes_patient>
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:firstSurgeryDate;
+    rr:objectMap [
+      rml:reference "surgery_date";
+      rr:datatype xsd:date;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:deathDate;
+    rr:objectMap [
+      rml:reference "death_date";
+      rr:datatype xsd:date;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:deathAge;
+    rr:objectMap [
+      rml:reference "age_at_death";
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:relapseYear;
+    rr:objectMap [
+      rml:reference "recurrence_year";
+      rr:datatype xsd:gYear;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasNeoadjuvantTherapy;
+    rr:objectMap [
+      rr:parentTriplesMap <NeoadjuvantTherapy_bc_clinical_notes_patient>
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:estrogenPositive;
+    rr:objectMap [
+      rr:parentTriplesMap <estrogen_positive_bc_clinical_notes_patient>
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:progesteronePositive;
+    rr:objectMap [
+      rr:parentTriplesMap <progesterone_positive_bc_clinical_notes_patient>
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:her2Positive;
+    rr:objectMap [
+      rr:parentTriplesMap <her2_positive_bc_clinical_notes_patient>
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:ki67;
+    rr:objectMap [
+      rml:reference "ki67_percent_max_simp";
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasMenarcheAge;
+    rr:objectMap [
+      rml:reference "menarche_age";
+      rr:datatype xsd:int;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasMenopauseAge;
+    rr:objectMap [
+      rml:reference "menopause_age";
+      rr:datatype xsd:int;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasEarlyMenopause;
+    rr:objectMap [
+      rml:reference "menopause_pre";
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:gravidity;
+    rr:objectMap [
+      rml:reference "pregnancy"
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:abortion;
+    rr:objectMap [
+      rml:reference "abort"
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:parity;
+    rr:objectMap [
+      rml:reference "birth"
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:cSection;
+    rr:objectMap [
+      rml:reference "caesarean"
+    ]
+  ].
+
+<OncologicalTreatmentLine_bc_clinical_notes_patient>
+  a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT *, to_uri(neoadjuvant) AS neoadjuvant_uri, to_bool_uri(er_positive) AS er_positive_uri, to_bool_uri(pr_positive) AS pr_positive_uri, to_bool_uri(her2_overall_positive) AS her2_overall_positive_uri FROM patient";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/BC_HUPHM_{ehr}_OncologicalTL_1";
+    rr:class paladin:OncologicalTreatmentLine
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:treatementLineStartDate;
+    rr:objectMap [
+      rml:reference "first_treatment_date";
+      rr:datatype xsd:date
+    ]
+  ].
+
+<NeoadjuvantTherapy_bc_clinical_notes_patient>
+  a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT *, to_uri(neoadjuvant) AS neoadjuvant_uri, to_bool_uri(er_positive) AS er_positive_uri, to_bool_uri(pr_positive) AS pr_positive_uri, to_bool_uri(her2_overall_positive) AS her2_overall_positive_uri FROM patient";
+  ];
+  rr:subjectMap [
+    rml:reference "neoadjuvant_uri";
+    rr:termType rr:IRI;
+  ];
+  rr:predicateObjectMap [
+    rr:predicate rdf:type;
+    rr:objectMap [
+      rr:constant <http://research.tib.eu/paladin/vocab/NeoadjuvantTherapy>;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasOriginalValue;
+    rr:objectMap [
+      rml:reference "neoadjuvant";
+    ]
+  ].
+
+<estrogen_positive_bc_clinical_notes_patient>
+  a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT *, to_uri(neoadjuvant) AS neoadjuvant_uri, to_bool_uri(er_positive) AS er_positive_uri, to_bool_uri(pr_positive) AS pr_positive_uri, to_bool_uri(her2_overall_positive) AS her2_overall_positive_uri FROM patient";
+  ];
+  rr:subjectMap [
+    rml:reference "er_positive_uri";
+    rr:termType rr:IRI;
+  ];
+  rr:predicateObjectMap [
+    rr:predicate rdf:type;
+    rr:objectMap [
+      rr:constant <http://research.tib.eu/paladin/vocab/EstrogenPositive>;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasOriginalValue;
+    rr:objectMap [
+      rml:reference "er_positive";
+    ]
+  ].
+
+<progesterone_positive_bc_clinical_notes_patient>
+  a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT *, to_uri(neoadjuvant) AS neoadjuvant_uri, to_bool_uri(er_positive) AS er_positive_uri, to_bool_uri(pr_positive) AS pr_positive_uri, to_bool_uri(her2_overall_positive) AS her2_overall_positive_uri FROM patient";
+  ];
+  rr:subjectMap [
+    rml:reference "pr_positive_uri";
+    rr:termType rr:IRI;
+  ];
+  rr:predicateObjectMap [
+    rr:predicate rdf:type;
+    rr:objectMap [
+      rr:constant <http://research.tib.eu/paladin/vocab/ProgesteronePositive>;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasOriginalValue;
+    rr:objectMap [
+      rml:reference "pr_positive";
+    ]
+  ].
+
+<her2_positive_bc_clinical_notes_patient>
+  a rr:TriplesMap;
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT *, to_uri(neoadjuvant) AS neoadjuvant_uri, to_bool_uri(er_positive) AS er_positive_uri, to_bool_uri(pr_positive) AS pr_positive_uri, to_bool_uri(her2_overall_positive) AS her2_overall_positive_uri FROM patient";
+  ];
+  rr:subjectMap [
+    rml:reference "her2_overall_positive_uri";
+    rr:termType rr:IRI;
+  ];
+  rr:predicateObjectMap [
+    rr:predicate rdf:type;
+    rr:objectMap [
+      rr:constant <http://research.tib.eu/paladin/vocab/HER2Positive>;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasOriginalValue;
+    rr:objectMap [
+      rml:reference "her2_overall_positive";
+    ]
+  ].
+
+<BCPatient_chemotherapy_treatment_episode>
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT ehr, date, cycle_number, cs.id_schema, SPLIT_STR(name, ' + ', 1) AS drug1, SPLIT_STR(name, ' + ', 2) AS drug2, SPLIT_STR(name, ' + ', 3) AS drug3, SPLIT_STR(name, ' + ', 4) AS drug4, to_uri(REPLACE(CAP_FIRST(name), ' + ', '_')) AS uri_schema FROM chemoterapy_cycle cc JOIN chemoterapy_schema cs USING(id_schema)";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/BC_HUPHM_{ehr}";
+    rr:class paladin:BCPatient
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasTreatmentEpisode;
+    rr:objectMap [
+      rr:parentTriplesMap <Treatment_Episode_Chemotherap>
+    ]
+  ].
+
+<Treatment_Episode_Chemotherapy>
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT ehr, date, cycle_number, cs.id_schema, SPLIT_STR(name, ' + ', 1) AS drug1, SPLIT_STR(name, ' + ', 2) AS drug2, SPLIT_STR(name, ' + ', 3) AS drug3, SPLIT_STR(name, ' + ', 4) AS drug4, to_uri(REPLACE(CAP_FIRST(name), ' + ', '_')) AS uri_schema FROM chemoterapy_cycle cc JOIN chemoterapy_schema cs USING(id_schema)";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/{ehr}_Chemotherapy_{date}";
+    rr:class paladin:TreatmentEpisode
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasTreatmentType;
+    rr:objectMap [
+      rr:parentTriplesMap <Treatment_Type_Chemotherapy>
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:treatementLineDate;
+    rr:objectMap [
+      rml:reference "date";
+      rr:datatype xsd:date
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasEpisode;
+    rr:objectMap [
+      rr:parentTriplesMap <TreatmentLineCycle_chemotherapy_drugs>
+    ]
+  ].
+
+<Treatment_Type_Chemotherapy>
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT ehr, date, cycle_number, cs.id_schema, SPLIT_STR(name, ' + ', 1) AS drug1, SPLIT_STR(name, ' + ', 2) AS drug2, SPLIT_STR(name, ' + ', 3) AS drug3, SPLIT_STR(name, ' + ', 4) AS drug4, to_uri(REPLACE(CAP_FIRST(name), ' + ', '_')) AS uri_schema FROM chemoterapy_cycle cc JOIN chemoterapy_schema cs USING(id_schema)";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/{ehr}_Chemotherapy_{cycle_number}_{id_schema}";
+  ];
+  rr:predicateObjectMap [
+    rr:predicate rdf:type;
+    rr:objectMap [
+       rr:constant <http://research.tib.eu/paladin/vocab/Chemotherapy>;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasTreatmentLineCycle;
+    rr:objectMap [
+      rr:parentTriplesMap <TreatmentLineCycle_chemotherapy_drugs>
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasDrugSchema;
+    rr:objectMap [
+      rr:parentTriplesMap <chemotherapy_drug_schema>
+    ]
+  ].
+
+<chemotherapy_drug_schema>
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT ehr, date, cycle_number, cs.id_schema, SPLIT_STR(name, ' + ', 1) AS drug1, SPLIT_STR(name, ' + ', 2) AS drug2, SPLIT_STR(name, ' + ', 3) AS drug3, SPLIT_STR(name, ' + ', 4) AS drug4, to_uri(REPLACE(CAP_FIRST(name), ' + ', '_')) AS uri_schema FROM chemoterapy_cycle cc JOIN chemoterapy_schema cs USING(id_schema)";
+  ];
+  rr:subjectMap [
+    rml:reference "uri_schema";
+    rr:termType rr:IRI;
+  ];
+  rr:predicateObjectMap [
+    rr:predicate rdf:type;
+    rr:objectMap [
+      rr:constant <http://research.tib.eu/paladin/vocab/BreastCancerDrugSchema>;
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasDrug1;
+    rr:objectMap [
+      rr:parentTriplesMap <Treatment_Episode_Chemotherapy_schema_drug_1>
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasDrug2;
+    rr:objectMap [
+      rr:parentTriplesMap <Treatment_Episode_Chemotherapy_schema_drug_2>
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasDrug3;
+    rr:objectMap [
+      rr:parentTriplesMap <Treatment_Episode_Chemotherapy_schema_drug_3>
+    ]
+  ];
+  rr:predicateObjectMap [
+    rr:predicate paladin:hasDrug4;
+    rr:objectMap [
+      rr:parentTriplesMap <Treatment_Episode_Chemotherapy_schema_drug_4>
+    ]
+  ].
+
+<Treatment_Episode_Chemotherapy_schema_drug_1>
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT ehr, date, cycle_number, cs.id_schema, SPLIT_STR(name, ' + ', 1) AS drug1, SPLIT_STR(name, ' + ', 2) AS drug2, SPLIT_STR(name, ' + ', 3) AS drug3, SPLIT_STR(name, ' + ', 4) AS drug4, to_uri(REPLACE(CAP_FIRST(name), ' + ', '_')) AS uri_schema FROM chemoterapy_cycle cc JOIN chemoterapy_schema cs USING(id_schema)";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/{drug1}";
+  ];
+  rr:predicateObjectMap [
+    rr:predicate rdf:type;
+    rr:objectMap [
+      rr:constant <http://research.tib.eu/paladin/vocab/BreastCancerOncologicalDrug>;
+    ]
+  ].
+
+<Treatment_Episode_Chemotherapy_schema_drug_2>
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT ehr, date, cycle_number, cs.id_schema, SPLIT_STR(name, ' + ', 1) AS drug1, SPLIT_STR(name, ' + ', 2) AS drug2, SPLIT_STR(name, ' + ', 3) AS drug3, SPLIT_STR(name, ' + ', 4) AS drug4, to_uri(REPLACE(CAP_FIRST(name), ' + ', '_')) AS uri_schema FROM chemoterapy_cycle cc JOIN chemoterapy_schema cs USING(id_schema)";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/{drug2}";
+  ];
+  rr:predicateObjectMap [
+    rr:predicate rdf:type;
+    rr:objectMap [
+      rr:constant <http://research.tib.eu/paladin/vocab/BreastCancerOncologicalDrug>;
+    ]
+  ].
+
+<Treatment_Episode_Chemotherapy_schema_drug_3>
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT ehr, date, cycle_number, cs.id_schema, SPLIT_STR(name, ' + ', 1) AS drug1, SPLIT_STR(name, ' + ', 2) AS drug2, SPLIT_STR(name, ' + ', 3) AS drug3, SPLIT_STR(name, ' + ', 4) AS drug4, to_uri(REPLACE(CAP_FIRST(name), ' + ', '_')) AS uri_schema FROM chemoterapy_cycle cc JOIN chemoterapy_schema cs USING(id_schema)";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/{drug3}";
+  ];
+  rr:predicateObjectMap [
+    rr:predicate rdf:type;
+    rr:objectMap [
+      rr:constant <http://research.tib.eu/paladin/vocab/BreastCancerOncologicalDrug>;
+    ]
+  ].
+
+<Treatment_Episode_Chemotherapy_schema_drug_4>
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT ehr, date, cycle_number, cs.id_schema, SPLIT_STR(name, ' + ', 1) AS drug1, SPLIT_STR(name, ' + ', 2) AS drug2, SPLIT_STR(name, ' + ', 3) AS drug3, SPLIT_STR(name, ' + ', 4) AS drug4, to_uri(REPLACE(CAP_FIRST(name), ' + ', '_')) AS uri_schema FROM chemoterapy_cycle cc JOIN chemoterapy_schema cs USING(id_schema)";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/{drug4}";
+  ];
+  rr:predicateObjectMap [
+    rr:predicate rdf:type;
+    rr:objectMap [
+      rr:constant <http://research.tib.eu/paladin/vocab/BreastCancerOncologicalDrug>;
+    ]
+  ].
+
+<TreatmentLineCycle_chemotherapy_drugs>
+  rml:logicalSource [
+    rml:source <#DB_source>;
+    rml:query "SELECT ehr, date, cycle_number, cs.id_schema, SPLIT_STR(name, ' + ', 1) AS drug1, SPLIT_STR(name, ' + ', 2) AS drug2, SPLIT_STR(name, ' + ', 3) AS drug3, SPLIT_STR(name, ' + ', 4) AS drug4, to_uri(REPLACE(CAP_FIRST(name), ' + ', '_')) AS uri_schema FROM chemoterapy_cycle cc JOIN chemoterapy_schema cs USING(id_schema)";
+  ];
+  rr:subjectMap [
+    rr:template "http://research.tib.eu/paladin/entity/{cycle_number}";
+    rr:class paladin:TreatmentLineCycle
+  ].

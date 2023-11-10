@@ -1,2 +1,60 @@
-# Synthetic-Data-Generator
-SDG generates synthetic breast cancer patient data
+# Synthetic Data Generator (SDG)
+
+The _Synthetic Data Generator_ (SDG) creates process-based data.
+These data model the treatment of breast cancer patients following the distribution of values in a real breast cancer patient population.
+
+## Parameters
+
+* __number of patients__ - the number of patients that will be modeled
+* __mutation probability__ - the mutation probability describes how likely it is for each datum to deviate from the treatment guidelines.
+
+> [!NOTE]
+> A mutation probability of 0.0 creates 'clean' data which complies with the treatment guidelines.
+
+## Data Formats
+
+On execution, SDG creates the same data set in three different formats.
+
+* CSV
+* RDF
+* SQL (MySQL 8.1 dump)
+
+## Data Generation
+
+__Requirements:__
+* Docker
+
+There are two options for generating the data; one is using `docker-compose`.
+After executing either of the available options, your generated data set can be found in `./data`.
+
+__Option 1: With docker-compose__
+
+If you want to use the `docker-compose` option, perform the following steps:
+
+```bash
+docker-compose up -d --build
+docker exec -it SDG bash -c "SDG -n {patients} -p {mutation_prob}"
+docker-compose down -v
+```
+
+where
+* `{patients}` is a placeholder for the number of patients
+* `{mutation_prob}` is a placeholder for the mutation probability
+
+This option is recommended if several data sets will be generated.
+__Do not forget to move your generated data before creating another data set!__
+
+__Option 2: Without docker-compose__
+
+If you do not want to use `docker-compose`, you can also execute:
+
+```bash
+./generate.sh {patients} {mutation_prob}
+```
+
+where
+* `{patients}` is a placeholder for the number of patients
+* `{mutation_prob}` is a placeholder for the mutation probability
+
+Similar to option 1, `generate.sh` will build the Docker image, start a Docker container, execute the SDG, and stop and remove the Docker container again.
+You can use this option if you do not have `docker-compose` installed or if you want to generate only one data set.

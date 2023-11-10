@@ -1,0 +1,4 @@
+rdfizer==4.7.2.7
+mysql-connector-python==8.2.0
+numpy==1.26.1
+pandas==2.1.2

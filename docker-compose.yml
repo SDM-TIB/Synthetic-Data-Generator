@@ -1,0 +1,9 @@
+version: '2'
+
+services:
+  sdg:
+    container_name: SDG
+    image: sdmtib/sdg:latest
+    build: .
+    volumes:
+      - ./data:/data
