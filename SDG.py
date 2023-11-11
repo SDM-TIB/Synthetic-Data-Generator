@@ -41,22 +41,22 @@ stage_dx_prob = {'0': 0.0846, 'IA': 0.3243, 'IB': 0.0432, 'IIA': 0.2260, 'IIB': 
 grade_prob = {'1': 0.2, '2': 0.6, '3': 0.2}
 mean_ki67 = {'PP': 28.2891, 'PN': 16.6183, 'NP': 38.8101, 'NN': 50.2081}
 surgery_prob = {'mastectomy': 0.5, 'partial mastectomy': 0.5}
-stage_neo_prob = {  # Outer: dx, Inner: after neo
+stage_neo_prob = {  # Outer: stage at diagnosis, Inner: stage after neoadjuvant treatment
     '0': {'0': 1.0},
     'IA': {'0': 0.1, 'IA': 0.9},
     'IB': {'0': 0.1, 'IA': 0.9},
-    'IIA': {'0': 0.0597, 'IA': 0.3134, 'IB': 0.0149, 'IIA': 0.3284, 'IIB': 0.0149, 'IIIA': 0.2388, 'IIIC': 0.0299},
+    'IIA': {'0': 0.0597, 'IA': 0.3134, 'IB': 0.0150, 'IIA': 0.3284, 'IIB': 0.0148, 'IIIA': 0.2388, 'IIIC': 0.0299},
     'IIB': {'0': 0.1, 'IA': 0.5, 'IIA': 0.1, 'IIB': 0.1, 'IIIA': 0.17, 'IV': 0.03},
-    'IIIA': {'0': 0.0556, 'IA': 0.1055, 'IB': 0.1055, 'IIA': 0.1389, 'IIB': 0.1111, 'IIIA': 0.3756, 'IIIB': 0.0378, 'IV': 0.07},
+    'IIIA': {'0': 0.0555, 'IA': 0.1055, 'IB': 0.1056, 'IIA': 0.1389, 'IIB': 0.1111, 'IIIA': 0.3756, 'IIIB': 0.0378, 'IV': 0.07},
     'IIIB': {'0': 0.0556, 'IA': 0.1055, 'IB': 0.1055, 'IIA': 0.1389, 'IIB': 0.1011, 'IIIA': 0.3656, 'IIIB': 0.0378, 'IV': 0.09},
-    'IIIC': {'0': 0.0556, 'IA': 0.1055, 'IB': 0.1055, 'IIA': 0.1389, 'IIB': 0.1011, 'IIIA': 0.3656, 'IIIB': 0.0278, 'IV': 0.1},
+    'IIIC': {'0': 0.0555, 'IA': 0.1056, 'IB': 0.1056, 'IIA': 0.1389, 'IIB': 0.1011, 'IIIA': 0.3655, 'IIIB': 0.0278, 'IV': 0.1},
     'IV': {'IV': 1.0}
 }
 hist_type_prob = {'ductal': 0.6276, 'lobular': 0.0932, 'other': 0.2792}
 ass_in_situ_prob = {'0': 0.4885, '1': 0.5115}
 
 days_to_radio = (28, 42)
-radio_days_mean = 33.58
+radio_days_mean = 33.57
 radio_days_std = 19.76
 radio_days_range = (7, 60)
 radio_gy_mean = 46.07
@@ -67,8 +67,8 @@ commorbidities_prob = {'autoimmune disease': 0.0366,
                        'cardiac insufficiency': 0.0160,
                        'diabetes': 0.0751,
                        'dislipemia': 0.1600,
-                       'gastrointestinal disease': 0.0638,
-                       'hta': 0.2437,
+                       'gastrointestinal disease': 0.0637,
+                       'hta': 0.2438,
                        'insomnia': 0.0019,
                        'ischemic cardiopathology': 0.0187,
                        'liver disease': 0.0487,
@@ -77,8 +77,8 @@ commorbidities_prob = {'autoimmune disease': 0.0366,
                        'other cardiopathology': 0.0475,
                        'psychiatric disorder': 0.0740,
                        'renal disease': 0.0191,
-                       'smoker or ex-smoker': 0.3632,
-                       'thyroid disease': 0.1452,
+                       'smoker or ex-smoker': 0.3631,
+                       'thyroid disease': 0.1453,
                        'transplant': 0.0012}
 id_commorbidity = 0
 
@@ -96,8 +96,8 @@ oral_drug_prob = {'tamoxifen': 0.8124,
                   'fulvestrant': 0.0727,
                   'megestrol acetate': 0.0284,
                   'olaparib': 0.0013,
-                  'palbociclib': 0.0430,
-                  'ribociclib': 0.0280,
+                  'palbociclib': 0.0429,
+                  'ribociclib': 0.0281,
                   'vinorelbine': 0.0232}
 
 family_prob = {'C0678222': 0.1323,
