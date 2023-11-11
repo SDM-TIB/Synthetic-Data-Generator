@@ -11,7 +11,7 @@ These data model the treatment of breast cancer patients following the distribut
 > [!NOTE]
 > A mutation probability of 0.0 creates 'clean' data which complies with the treatment guidelines.
 
-## Data Formats
+## Output data Formats
 
 On execution, SDG creates the same data set in three different formats.
 
