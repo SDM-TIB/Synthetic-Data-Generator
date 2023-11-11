@@ -29,7 +29,7 @@ After executing either of the available options, your generated data set can be 
 
 __Option 1: With docker-compose__
 
-If you want to use the `docker-compose` option, perform the following steps:
+If you want to use the `docker-compose` option, run the following commands:
 
 ```bash
 docker-compose up -d --build
@@ -41,8 +41,7 @@ where
 * `{patients}` is a placeholder for the number of patients
 * `{mutation_prob}` is a placeholder for the mutation probability
 
-This option is recommended if several data sets will be generated.
-__Do not forget to move your generated data before creating another data set!__
+This option is recommended if several data sets will be generated. The SDG creates the resulting files with the same name in all the executions, __do not forget to move your generated data before creating another data set!__
 
 __Option 2: Without docker-compose__
 
@@ -58,3 +57,5 @@ where
 
 Similar to option 1, `generate.sh` will build the Docker image, start a Docker container, execute the SDG, and stop and remove the Docker container again.
 You can use this option if you do not have `docker-compose` installed or if you want to generate only one data set.
+
+As in option 1, the SDG creates the resulting files with the same name in all the executions, __do not forget to move your generated data before creating another data set!__
