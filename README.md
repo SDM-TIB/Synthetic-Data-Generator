@@ -1,3 +1,5 @@
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 # Synthetic Data Generator (SDG)
 
 The _Synthetic Data Generator_ (SDG) creates process-based data.
