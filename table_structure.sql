@@ -129,7 +129,7 @@ CREATE TABLE `cui_description` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Dumping data for table `oral_drug_type`
+-- Dumping data for table `cui_description`
 --
 
 LOCK TABLES `cui_description` WRITE;
