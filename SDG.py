@@ -623,7 +623,7 @@ if __name__ == '__main__':
 
     start_gen = time.time()
     for ehr in range(n_patients):
-        generate_data(ehr, db_cur, error_prob=error_prob_param)
+        generate_data(ehr+1, db_cur, error_prob=error_prob_param)
     print('Generating data:', time.time() - start_gen)
 
     db_con.commit()
