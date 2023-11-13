@@ -1,0 +1,11 @@
+cff-version: 1.2.0
+message: "If you use data generated with SDG in your work, please cite it using the following metadata."
+authors:
+- family-names: "Diaz-Honrubia"
+  given-names: "Antonio Jesus"
+  orcid: "https://orcid.org/0000-0001-5464-0714"
+- family-names: "Rohde"
+  given-names: "Philipp D."
+  orcid: "https://orcid.org/0000-0002-9835-4354"
+title: "Synthetic Data Generator"
+url: "https://github.com/SDM-TIB/Synthetic-Data-Generator"
