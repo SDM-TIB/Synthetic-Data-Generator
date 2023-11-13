@@ -616,7 +616,6 @@ if __name__ == '__main__':
     error_prob_param = args.p
 
     db_con, db_cur = open_db_connection('localhost', 3306, 'root', 'paladin', 'synth')
-    # db_con, db_cur = open_db_connection('localhost', 3400, 'root', 'paladin', 'bc')
     start = time.time()
     initialize_database(db_con, db_cur)
     print("Setting up the database:", time.time() - start)
