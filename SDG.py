@@ -21,7 +21,6 @@ from mysql.connector.connection import MySQLConnection
 from mysql.connector.cursor import MySQLCursor
 from rdfizer import semantify
 
-ehr_range = (10000000, 100000000)
 max_cycles_adjuvant = 20
 mean_age_dx = 57
 mean_menarche_age = 12.7819
@@ -622,15 +621,8 @@ if __name__ == '__main__':
     initialize_database(db_con, db_cur)
     print("Setting up the database:", time.time() - start)
 
-    ehrs = []
-    for i in range(n_patients):
-        ehr = np.random.randint(ehr_range[0], ehr_range[1])
-        while ehr in ehrs:
-            ehr += 1
-        ehrs.append(ehr)
-
     start_gen = time.time()
-    for ehr in ehrs:
+    for ehr in range(n_patients):
         generate_data(ehr, db_cur, error_prob=error_prob_param)
     print('Generating data:', time.time() - start_gen)
 
