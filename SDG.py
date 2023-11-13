@@ -491,7 +491,7 @@ def generate_data(ehr: int, cur: MySQLCursor, error_prob: float = 0.0):
     if er or pr:
         for d in oral_drug_prob.keys():
             if np.random.rand() < oral_drug_prob[d]:
-                oral_drug += [[ehr, d]]
+                oral_drug += [[ehr, str(d)]]
     df_oral_drug = pd.DataFrame(oral_drug, columns=['ehr', 'drug'])
     if (len(df_oral_drug) == 2 and np.random.rand() < 0.5) or (len(df_oral_drug) > 2 and np.random.rand() < 0.2):
         df_oral_drug = df_oral_drug.drop([np.random.randint(len(df_oral_drug))], axis=0)
@@ -504,8 +504,9 @@ def generate_data(ehr: int, cur: MySQLCursor, error_prob: float = 0.0):
             if action == 'remove' or action == 'mutate':
                 remove += [r]
             if action == 'add' or action == 'mutate':
-                add += [[ehr, np.random.choice(list(oral_drug_prob.keys()))]]
-    df_oral_drug = df_oral_drug.drop(remove, axis=0)
+                add += [[ehr, str(np.random.choice(list(oral_drug_prob.keys())))]]
+    df_oral_drug.drop(remove, axis=0, inplace=True)
+    df_oral_drug.reset_index(drop=True, inplace=True)
     df_add = pd.DataFrame(add, columns=['ehr', 'drug'])
     df_oral_drug = pd.concat([df_oral_drug, df_add]).drop_duplicates()
 
@@ -513,7 +514,7 @@ def generate_data(ehr: int, cur: MySQLCursor, error_prob: float = 0.0):
     family = []
     for f in family_prob.keys():
         if np.random.rand() < family_prob[f]:
-            family += [[ehr, f]]
+            family += [[ehr, str(f)]]
     df_family = pd.DataFrame(family, columns=['ehr', 'cancer_cui'])
 
     remove = []
@@ -524,8 +525,9 @@ def generate_data(ehr: int, cur: MySQLCursor, error_prob: float = 0.0):
             if action == 'remove' or action == 'mutate':
                 remove += [r]
             if action == 'add' or action == 'mutate':
-                add += [[ehr, np.random.choice(list(family_prob.keys()))]]
-    df_family = df_family.drop(remove, axis=0)
+                add += [[ehr, str(np.random.choice(list(family_prob.keys())))]]
+    df_family.drop(remove, axis=0, inplace=True)
+    df_family.reset_index(drop=True, inplace=True)
     df_add = pd.DataFrame(add, columns=['ehr', 'cancer_cui'])
     df_family = pd.concat([df_family, df_add]).drop_duplicates()
 
@@ -535,16 +537,16 @@ def generate_data(ehr: int, cur: MySQLCursor, error_prob: float = 0.0):
 
     if neoadjuvant:
         sql = 'INSERT INTO tumor_tnm(ehr, n_tumor_tnm, t_prefix_y, t_prefix, t_category, n_prefix_y, n_prefix, n_category, n_subcategory, m_category, t_prefix_y_after_neoadj, t_prefix_after_neoadj, t_category_after_neoadj, n_prefix_y_after_neoadj, n_prefix_after_neoadj, n_category_after_neoadj, n_subcategory_after_neoadj, m_category_after_neoadj, n_tumor_type, n_tumor_grade, stage_diagnosis, stage_after_neo) VALUES (%s'+', %s' * 21 + ');'
-        cur.execute(sql, (ehr, 1, 0, prefix_dx, t, 0, prefix_dx, n, mi, m, 1, prefix_neo, t_neo, 1, prefix_neo, n_neo, mi_neo, m_neo, 1, 1, stage_dx, stage_neo))
+        cur.execute(sql, (ehr, 1, 0, str(prefix_dx), str(t), 0, str(prefix_dx), str(n), str(mi), str(m), 1, str(prefix_neo), str(t_neo), 1, str(prefix_neo), str(n_neo), str(mi_neo), str(m_neo), 1, 1, str(stage_dx), str(stage_neo)))
     else:
         sql = 'INSERT INTO tumor_tnm(ehr, n_tumor_tnm, t_prefix_y, t_prefix, t_category, n_prefix_y, n_prefix, n_category, n_subcategory, m_category, n_tumor_type, n_tumor_grade, stage_diagnosis) VALUES (%s'+', %s' * 12 + ');'
-        cur.execute(sql, (ehr, 1, 0, prefix_dx, t, 0, prefix_dx, n, mi, m, 1, 1, stage_dx))
+        cur.execute(sql, (ehr, 1, 0, str(prefix_dx), str(t), 0, str(prefix_dx), str(n), str(mi), str(m), 1, 1, str(stage_dx)))
 
     sql = 'INSERT INTO tumor_type VALUES (%s, %s, %s, %s, %s, %s, %s);'
     cur.execute(sql, (ehr, 1, 1 if hist_type == 'ductal' else None, 1 if hist_type == 'lobular' else None, 1 if not invasive else None, 1 if invasive else None, 1 if ass_in_situ == '1' else None))
 
     sql = 'INSERT INTO tumor_grade VALUES (%s, %s, %s);'
-    cur.execute(sql, (ehr, 1, grade))
+    cur.execute(sql, (ehr, 1, int(grade)))
 
     sql = 'INSERT INTO chemoterapy_cycle VALUES (%s, %s, %s, %s);'
     cur.executemany(sql, df_chemo.values.tolist())
