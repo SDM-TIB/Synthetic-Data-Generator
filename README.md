@@ -69,7 +69,7 @@ The SGD generates data that could be collected during the treatment process of b
 
 ![Entity-Relationship diagram of the generated data](https://github.com/SDM-TIB/Synthetic-Data-Generator/blob/main/er-diagram-generated-data.jpg)
 
-The data dictionary is the following:
+__Data dictionary:__
 * patient
   * ehr: INTEGER
   * birth_date: DATE
