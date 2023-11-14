@@ -61,3 +61,27 @@ Similar to option 1, `generate.sh` will build the Docker image, start a Docker c
 You can use this option if you do not have `docker-compose` installed or if you want to generate only one data set.
 
 As in option 1, the SDG creates the resulting files with the same name in all the executions, __do not forget to move your generated data before creating another data set!__
+
+
+## Output Data Description
+
+The SGD generates data that could be collected during the treatment process of breast cancer patients, including demographic, gynecologic, diagnostic, tumor-related, treatment, comorbidity, and family history data. To illustrate the output data, the following figure shows the Entity-Relationship diagram of the data generated when choosing the relational database as the output format. The other output formats generate equivalent data, using the corresponding formats.
+
+The data dictionary is the following:
+* patient
+  * ehr: INTEGER
+* tumor_tnm
+* tumor_type
+* tumor_grade
+* drug
+* chemoterapy_schema
+* drug_chemoterapy_schema
+* chemoterapy_cycle
+* surgery
+* radiotherapy
+* comorbidity
+* oral_drug
+* family_history
+* cui_description
+
+
