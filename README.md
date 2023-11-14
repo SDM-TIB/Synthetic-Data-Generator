@@ -67,7 +67,7 @@ As in option 1, the SDG creates the resulting files with the same name in all th
 
 The SGD generates data that could be collected during the treatment process of breast cancer patients, including demographic, gynecologic, diagnostic, tumor-related, treatment, comorbidity, and family history data. To illustrate the output data, the following figure shows the Entity-Relationship diagram of the data generated when choosing the relational database as the output format. Because of readibility reasons, only the key attributes have been included, the rest of attrbites are described in the data dictionaty below. The other output formats generate equivalent data, using the corresponding formats.
 
-![Entity-Relationship diagram of the generated data](http://url/to/img.png)
+![Entity-Relationship diagram of the generated data](https://github.com/SDM-TIB/Synthetic-Data-Generator/blob/main/er-diagram-generated-data.jpg)
 
 The data dictionary is the following:
 * patient
