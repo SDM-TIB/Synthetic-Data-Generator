@@ -65,7 +65,9 @@ As in option 1, the SDG creates the resulting files with the same name in all th
 
 ## Output Data Description
 
-The SGD generates data that could be collected during the treatment process of breast cancer patients, including demographic, gynecologic, diagnostic, tumor-related, treatment, comorbidity, and family history data. To illustrate the output data, the following figure shows the Entity-Relationship diagram of the data generated when choosing the relational database as the output format. The other output formats generate equivalent data, using the corresponding formats.
+The SGD generates data that could be collected during the treatment process of breast cancer patients, including demographic, gynecologic, diagnostic, tumor-related, treatment, comorbidity, and family history data. To illustrate the output data, the following figure shows the Entity-Relationship diagram of the data generated when choosing the relational database as the output format. Because of readibility reasons, only the key attributes have been included, the rest of attrbites are described in the data dictionaty below. The other output formats generate equivalent data, using the corresponding formats.
+
+![Entity-Relationship diagram of the generated data](http://url/to/img.png)
 
 The data dictionary is the following:
 * patient
@@ -113,16 +115,54 @@ The data dictionary is the following:
   * stage_diagnosis: 0 / IA / IB / IIA / IIB / IIIA / IIIB / IIIC / IV
   * stage_after_neo: 0 / IA / IB / IIA / IIB / IIIA / IIIB / IIIC / IV
 * tumor_type
+  * ehr: INTEGER
+  * n_tumor_type: INTEGER
+  * ductal: 1 / 0
+  * lobular: 1 / 0
+  * in_situ: 1 / 0
+  * invasive: 1 / 0
+  * associated_in_situ: 1 / 0
 * tumor_grade
+  * ehr: INTEGER
+  * n_tumor_grade: INTEGER
+  * grade: 1 / 2 / 3
 * drug
+  * id_drug: INTEGER
+  * name: STRING
 * chemoterapy_schema
+  * id_schema: INTEGER
+  * name: STRING
 * drug_chemoterapy_schema
+  * id_schema: INTEGER
+  * id_drug: INTEGER
 * chemoterapy_cycle
+  * ehr: INTEGER
+  * id_schema: INTEGER
+  * date: DATE
+  * cycle_number: INTEGER
 * surgery
+  * ehr: INTEGER
+  * surgery: STRING
+  * n_surgery: INTEGER
+  * date_year: INTEGER
+  * date_month: INTEGER
+  * date_day: INTEGER
 * radiotherapy
+  * ehr: INTEGER
+  * date_start: DATE
+  * date_end: DATE
+  * n_radiotherapy: INTEGER
+  * dose_gy: FLOAT
 * comorbidity
+  * id: INTEGER
+  * ehr: INTEGER
+  * comorbidity: STRING
+  * negated: 0 / 1
 * oral_drug
+  * ehr: INTEGER
+  * drug: STRING
 * family_history
-* cui_description
+  * ehr: INTEGER
+  * cancer_cui: STRING
 
 
