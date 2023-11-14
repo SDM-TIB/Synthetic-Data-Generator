@@ -70,7 +70,48 @@ The SGD generates data that could be collected during the treatment process of b
 The data dictionary is the following:
 * patient
   * ehr: INTEGER
+  * birth_date: DATE
+  * diagnosis_date: DATE
+  * age_at_diagnosis: INTEGER
+  * first_treatment_date: DATE
+  * surgery_date: DATE
+  * death_date: DATE / NULL (if the patient has not died)
+  * age_at_death: INTEGER / NULL (if the patient has not died)
+  * recurrence_year: INTEGER / NULL (if the patient has not relapsed)
+  * neoadjuvant: yes / no
+  * er_positive: 1 / 0
+  * pr_positive: 1 / 0
+  * her2_overall_positive: 1 / 0
+  * ki67_percent_max_simp: INTEGER (ranging from 0 to 100)
+  * menarche_age: INTEGER
+  * menopause_age: INTEGER
+  * pregnancy: INTEGER
+  * abort: INTEGER
+  * birth: INTEGER
+  * caesarean: INTEGER
 * tumor_tnm
+  * ehr: INTEGER
+  * n_tumor: INTEGER
+  * t_prefix_y: 0
+  * t_prefix: C / P
+  * t_category: IS / 0 / 1 / 2 / 3 / 4
+  * n_prefix_y: 0
+  * n_prefix: C / P
+  * n_category: 0 / 1 / 2 / 3
+  * n_subcategory: MI / NULL
+  * m_category: 0 / 1
+  * t_prefix_y_after_neoadj: 1
+  * t_prefix_after_neoadj: C / P / NULL (if not neoadjuvant)
+  * t_category_after_neoadj: IS / 0 / 1 / 2 / 3 / 4 / NULL (if not neoadjuvant)
+  * n_prefix_y_after_neoadj: 1
+  * n_prefix_after_neoadj: C / P / NULL (if not neoadjuvant)
+  * n_category_after_neoadj: 0 / 1 / 2 / 3 / NULL (if not neoadjuvant)
+  * n_subcategory_after_neoadj: MI / NULL
+  * m_category_after_neoadj: 0 / 1 / NULL (if not neoadjuvant)
+  * n_tumor_type: INTEGER
+  * n_tumor_grade: INTEGER
+  * stage_diagnosis: 0 / IA / IB / IIA / IIB / IIIA / IIIB / IIIC / IV
+  * stage_after_neo: 0 / IA / IB / IIA / IIB / IIIA / IIIB / IIIC / IV
 * tumor_type
 * tumor_grade
 * drug
