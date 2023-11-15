@@ -161,8 +161,13 @@ __Data dictionary:__
 * oral_drug
   * ehr: INTEGER
   * drug: STRING
+* oral_drug_type
+  * drug: STRING
+  * drug_type: STRING
 * family_history
   * ehr: INTEGER
   * cancer_cui: STRING
-
+* cui_description
+  * cui: STRING
+  * description: STRING
 
