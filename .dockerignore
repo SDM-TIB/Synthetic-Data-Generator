@@ -1,5 +1,7 @@
 data/
 .gitignore
+CITATION.cff
 Dockerfile
 docker-compose.yml
+er-diagram-generated-data.jpg
 generate.sh
